@@ -10,7 +10,7 @@ import Foundation
 @_exported import FoundationNetworking
 #endif
 
-public struct RateLimit {
+public struct RateLimit: Sendable {
     public let limit: Int
     public let remaining: Int
     public let reset: Int
@@ -26,6 +26,7 @@ public struct RateLimit {
         self.reset = reset
     }
 }
+
 /// An actor which handle the most common HTTP requests for the AT Protocol.
 ///
 /// This is, effectively, the meat of the "XRPC" portion of the AT Protocol, which creates
