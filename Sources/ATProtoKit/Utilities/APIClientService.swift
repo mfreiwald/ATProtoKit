@@ -10,6 +10,22 @@ import Foundation
 @_exported import FoundationNetworking
 #endif
 
+public struct RateLimit {
+    public let limit: Int
+    public let remaining: Int
+    public let reset: Int
+
+    init?(httpResponse: HTTPURLResponse) {
+        guard
+            let reset = Int(httpResponse.value(forHTTPHeaderField: "ratelimit-reset") ?? ""),
+            let limit = Int(httpResponse.value(forHTTPHeaderField: "ratelimit-limit") ?? ""),
+            let remaining = Int(httpResponse.value(forHTTPHeaderField: "ratelimit-remaining") ?? "")
+        else { return nil }
+        self.limit = limit
+        self.remaining = remaining
+        self.reset = reset
+    }
+}
 /// An actor which handle the most common HTTP requests for the AT Protocol.
 ///
 /// This is, effectively, the meat of the "XRPC" portion of the AT Protocol, which creates
@@ -19,6 +35,7 @@ public actor APIClientService {
 
     /// The `URLSession` instance to be used for network requests.
     private(set) var urlSession: URLSession
+    public private(set) var rateLimit: RateLimit?
 
     /// A `URLSession` object for use in all HTTP requests.
     public static let shared = APIClientService()
@@ -264,6 +281,8 @@ public actor APIClientService {
             let (data, response) = try await urlSession.data(for: urlRequest)
 
             if let httpResponse = response as? HTTPURLResponse {
+                rateLimit = RateLimit(httpResponse: httpResponse)
+
                 switch httpResponse.statusCode {
                     case 200:
                         return data
