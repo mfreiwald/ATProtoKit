@@ -96,13 +96,13 @@ extension ATRecordConfiguration {
 /// that the JSON object will fit into.
 ///
 /// This registry is managed by an `actor`, ensuring concurrency-safe access to its internal
-/// data. Because of this, all interactions with `ATRecordTypeRegistry` must be done
+/// data. Because of this, most interactions with `ATRecordTypeRegistry` must be done
 /// asynchronously using `await`.
 ///
 /// When adding a record, you need to type `.self` at the end.
 /// ```swift
 /// Task {
-///     await ATRecordTypeRegistry(types: [UserProfile.self])
+///     _ = await ATRecordTypeRegistry.shared.register(types: [UserProfile.self])
 /// }
 /// ```
 ///
@@ -110,7 +110,25 @@ extension ATRecordConfiguration {
 ///
 /// - Warning: All record types _must_ conform to ``ATRecordProtocol``. Failure to do so may
 /// result in an error.
+///
+/// # Waiting For the Registry To Be Ready
+///
+/// If you need to ensure that the registry is ready to be read. In order to do this, you should
+/// use ``ATRecordTypeRegistry/waitUntilRegistryIsRead()`` in the function. This prevents the
+/// function from continuing until the registry is ready to be used.
+///
+/// - Note: ``ATRecordTypeRegistry/waitUntilRegistryIsRead()`` only works in functions that
+/// are `async`.
 public actor ATRecordTypeRegistry {
+
+    /// The shared instance of `ATRecordTypeRegistry`.
+    public static let shared = ATRecordTypeRegistry()
+
+    /// A private dispatch queue for the registry.
+    private let registryQueue = DispatchQueue(label: "com.cjrriley.ATProtoKit.ATRecordTypeRegistryQueue")
+
+    /// A private property of ``recordRegistry``.
+    private(set) static var _recordRegistry: [String: any ATRecordProtocol.Type] = [:]
 
     /// The registry itself.
     ///
@@ -121,57 +139,108 @@ public actor ATRecordTypeRegistry {
     /// (which is used as the "value"). ``UnknownType`` will search for the key that matches with
     /// the JSON object's `$type` property, and then decode or encode the JSON object using the
     /// `struct` that was found if there's a match.
-    public static var recordRegistry = [String: any ATRecordProtocol.Type]()
+    public static var recordRegistry: [String: any ATRecordProtocol.Type] {
+        get {
+            return self.shared.registryQueue.sync {
+                Self._recordRegistry
+            }
+        }
+    }
 
     /// Indicates whether any Bluesky-related `ATRecordProtocol`-conforming `struct`s have been
     /// added to ``recordRegistry``. Defaults to `false`.
     ///
     /// - Warning: Don't touch this property; this should only be used for ``ATProtoKit``.
-    public static var areBlueskyRecordsRegistered = false
+    public private(set) static var areBlueskyRecordsRegistered = false
 
-    /// Global dispatch group to signal when registration is complete.
-    public static let registrationGroup = DispatchGroup()
+    /// Tracks whether the registry is currently being modified.
+    public private(set) var isUpdating = false
 
-    /// Initializes the registry with an array of record types.
+    /// An array of continuations waiting for the registry to be ready.
+    private var continuations: [CheckedContinuation<Void, Never>] = []
+
+    private init() {}
+
+    /// Registers an array of record types.
     ///
     /// - Parameter types: An array of ``ATRecordProtocol``-conforming `struct`s.
-    public init(types: [any ATRecordProtocol.Type]) async {
-        for type in types {
-            let typeKey = String(describing: type.type)
+    public func register(types: [any ATRecordProtocol.Type]) async {
+        self.isUpdating = true
 
-            // Check if the key already exists
-            if ATRecordTypeRegistry.recordRegistry[typeKey] != nil {
-                // Optionally, log or handle the duplicate case
+        for type in types {
+            let typeKey = type.type
+            guard !self.isRegistered(typeKey) else {
                 print("Record type '\(typeKey)' is already registered. Skipping.")
                 continue
             }
 
-            // Add the new type to the registry
-            ATRecordTypeRegistry.recordRegistry[typeKey] = type
+            self.registryQueue.sync {
+                Self._recordRegistry[typeKey] = type
+            }
         }
+
+        await endUpdating()
     }
 
-    /// Initializes the registry with an array of record types from Bluesky.
+    /// Registers an array of Bluesky record lexicon types.
     ///
     /// - Note: This must only be used for the main `ATProtoKit` `class` and only for
     /// Bluesky-specific record lexicon models.
     ///
-    /// - Parameter types: An array of ``ATRecordProtocol``-conforming `struct`s.
-    package init(blueskyLexiconTypes: [any ATRecordProtocol.Type]) async {
-        guard !ATRecordTypeRegistry.areBlueskyRecordsRegistered else { return }
+    /// - Parameter blueskyLexiconTypes: An array of ``ATRecordProtocol``-conforming `struct`s.
+    public func register(blueskyLexiconTypes: [any ATRecordProtocol.Type]) async {
+        let alreadyRegistered = self.registryQueue.sync {
+            Self.areBlueskyRecordsRegistered
+        }
+
+        guard !alreadyRegistered else { return }
+
+        self.isUpdating = true
 
         for type in blueskyLexiconTypes {
-            let typeKey = String(describing: type.type)
-
-            // Check if the key already exists
-            if ATRecordTypeRegistry.recordRegistry[typeKey] != nil {
-                // Optionally, log or handle the duplicate case
+            let typeKey = type.type
+            guard !isRegistered(typeKey) else {
                 print("Record type '\(typeKey)' is already registered. Skipping.")
                 continue
             }
 
-            // Add the new type to the registry
-            ATRecordTypeRegistry.recordRegistry[typeKey] = type
+            self.registryQueue.sync {
+                Self._recordRegistry[typeKey] = type
+            }
+        }
+
+        self.registryQueue.sync {
+            Self.areBlueskyRecordsRegistered = true
+        }
+
+        await endUpdating()
+    }
+
+    /// Indicates whether the specified lexicon `struct` type is registered
+    /// inside ``recordRegistry``.
+    ///
+    /// - Parameter typeKey: The Namespaced Identifier (NSID) of the lexicon.
+    /// - Returns: `true` if there is a `struct` that correspondences with the `typeKey` value, or
+    /// `false` if not.
+    public func isRegistered(_ typeKey: String) -> Bool {
+        return self.registryQueue.sync { Self._recordRegistry[typeKey] != nil }
+    }
+
+    /// Sets ``areBlueskyRecordsRegistered`` to a `Bool` value.
+    ///
+    /// - Parameter value: The `Bool` value used to set the property.
+    public static func setBlueskyRecordsRegistered(_ value: Bool) {
+        self.shared.registryQueue.sync {
+            Self.areBlueskyRecordsRegistered = value
+        }
+    }
+
+    /// Halts the execution of code until ``recordRegistry`` is ready to be used.
+    public func waitUntilRegistryIsRead() async {
+        if isUpdating == false { return }
+
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            continuations.append(continuation)
         }
     }
 
@@ -192,9 +261,8 @@ public actor ATRecordTypeRegistry {
     ///     \- reading from the decoder fails\
     ///     \- the data read is corrupted or otherwise invalid
     ///     \- no object key in `recordRegistry` matches the `$type`'s value.
-    public static func createInstance(ofType type: String, from decoder: Decoder) async throws -> (any ATRecordProtocol)? {
-
-        guard let typeClass = await self.getRecordType(for: type) else {
+    public static func createInstance(ofType type: String, from decoder: Decoder) throws -> (any ATRecordProtocol)? {
+        guard let typeClass = self.getRecordType(for: type) else {
             return nil
         }
 
@@ -207,15 +275,21 @@ public actor ATRecordTypeRegistry {
     /// - Parameter type: The NSID string.
     /// - Returns: The ``ATRecordProtocol``-conforming type (if there's a match), or `nil`
     /// (if there isn't).
-    public static func getRecordType(for type: String) async -> (any ATRecordProtocol.Type)? {
-        return ATRecordTypeRegistry.recordRegistry[type]
+    public static func getRecordType(for type: String) -> (any ATRecordProtocol.Type)? {
+        self.shared.registryQueue.sync {
+            return ATRecordTypeRegistry.recordRegistry[type]
+        }
     }
 
-    /// Sets the boolean value of ``areBlueskyRecordsRegistered``.
-    ///
-    /// - Warning: Don't touch this method; this should only be used for ``ATProtoKit``.
-    public static func setBlueskyRecordsRegistered(_ registered: Bool) async {
-        ATRecordTypeRegistry.areBlueskyRecordsRegistered = registered
+    /// Called when ``recordRegistry`` updates are completed.
+    private func endUpdating() async {
+        isUpdating = false
+
+        for continuation in continuations {
+            continuation.resume()
+        }
+        // Clear the waiting list.
+        continuations.removeAll()
     }
 }
 
@@ -269,16 +343,6 @@ public enum UnknownType: Sendable, Codable {
     ///     \- the JSON object is invalid
     @_documentation(visibility: private)
     public init(from decoder: Decoder) throws {
-        // Before we decode anything, we need to check that ATRecordTypeRegistry is ready.
-        // It shouldn't ever take more than 3 seconds to be ready, but in the rare case that it is,
-        // indeed, not ready, we need to end this early.
-        let waitResult = ATRecordTypeRegistry.registrationGroup.wait(timeout: .now() + 3)
-        if waitResult == .timedOut {
-            throw DecodingError.dataCorrupted(
-                DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Record registry not ready")
-            )
-        }
-
         let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
 
         if let typeKey = DynamicCodingKeys(stringValue: "$type"),
@@ -438,16 +502,6 @@ public enum UnknownType: Sendable, Codable {
     /// Inherited from `Encoder`.
     @_documentation(visibility: private)
     public func encode(to encoder: Encoder) throws {
-        // Before we encode anything, we need to check that ATRecordTypeRegistry is ready.
-        // It shouldn't ever take more than 3 seconds to be ready, but in the rare case that it is,
-        // indeed, not ready, we need to end this early.
-        let waitResult = ATRecordTypeRegistry.registrationGroup.wait(timeout: .now() + 3)
-        if waitResult == .timedOut {
-            throw EncodingError.invalidValue(self,
-                                             EncodingError.Context(codingPath: encoder.codingPath,
-                                                                   debugDescription: "Record registry not ready"))
-        }
-
         var container = encoder.singleValueContainer()
 
         switch self {

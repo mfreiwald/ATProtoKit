@@ -20,6 +20,11 @@
 - ``ComAtprotoLexicon/Sync/ListRepositories``
 - ``ComAtprotoLexicon/Sync/ListRepositoriesOutput``
 
+### com.atproto.sync.listReposByCollection
+
+- ``ComAtprotoLexicon/Sync/ListRepositoriesByCollection``
+- ``ComAtprotoLexicon/Sync/ListRepositoriesByCollectionOutput``
+
 ### com.atproto.sync.subscribeRepos
 
 - ``ComAtprotoLexicon/Sync/SubscribeRepos``

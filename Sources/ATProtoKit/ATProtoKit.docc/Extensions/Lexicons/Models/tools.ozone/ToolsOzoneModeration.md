@@ -16,6 +16,7 @@
 - ``ToolsOzoneLexicon/Moderation/EventCommentDefinition``
 - ``ToolsOzoneLexicon/Moderation/EventReportDefinition``
 - ``ToolsOzoneLexicon/Moderation/EventLabelDefinition``
+- ``ToolsOzoneLexicon/Moderation/EventPriorityScoreDefinition``
 - ``ToolsOzoneLexicon/Moderation/EventAcknowledgeDefinition``
 - ``ToolsOzoneLexicon/Moderation/EventEscalateDefinition``
 - ``ToolsOzoneLexicon/Moderation/EventMuteDefinition``
@@ -41,6 +42,7 @@
 - ``ToolsOzoneLexicon/Moderation/VideoDetailsDefinition``
 - ``ToolsOzoneLexicon/Moderation/AccountHostingDefinition``
 - ``ToolsOzoneLexicon/Moderation/RecordHostingDefinition``
+- ``ToolsOzoneLexicon/Moderation/ReporterStatsDefinition``
 
 ### tools.ozone.moderation.emitEvent
 
@@ -49,6 +51,10 @@
 ### tools.ozone.moderation.getRecords
 
 - ``ToolsOzoneLexicon/Moderation/GetRecordsOutput``
+
+### tools.ozone.moderation.getReporterStats
+
+- ``ToolsOzoneLexicon/Moderation/GetReporterStatsOutput``
 
 ### tools.ozone.moderation.getRepos
 

@@ -91,6 +91,11 @@ extension ATProtoBluesky {
     /// An error type related to ``ATProtoBluesky``-related issues.
     public enum ATProtoBlueskyError: Decodable, ATProtoError {
 
+        /// The post record could not be found.
+        ///
+        /// - Parameter message: The message of the error.
+        case postNotFound(message: String)
+
         /// The reply reference could not be validated.
         ///
         /// - Parameter message: The message of the error.
@@ -142,6 +147,11 @@ public enum ATJobStatusError: Decodable, ATProtoError {
     ///
     /// - Parameter message: The message for the error.
     case videoLimitExceeded(message: String)
+
+    /// The video can't be uploaded because the size of the video is too big.
+    ///
+    /// - Parameter message: The message for the error.
+    case videoSizeTooLarge(message: String)
 
     /// The video can't be uploaded because the user account either has the ability to upload
     /// videos disabld or because they have been banned from doing so.

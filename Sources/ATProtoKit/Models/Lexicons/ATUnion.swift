@@ -45,11 +45,14 @@ public struct ATUnion {
 
         /// The "Bluesky App State" preference.
         ///
-        /// - Important: this should never be used, as it's supposed to be for the official Bluesky iOS client.
+        /// - Important: This should never be used, as it's supposed to be for the official Bluesky iOS client.
         case bskyAppStatePreferences(AppBskyLexicon.Actor.BskyAppStatePreferencesDefinition)
 
         /// The "Labelers" preference.
         case labelersPreferences(AppBskyLexicon.Actor.LabelersPreferencesDefinition)
+
+        /// The "Post Interaction Setting" preference.
+        case postInteractionSettingsPreference(AppBskyLexicon.Actor.PostInteractionSettingsPreferenceDefinition)
 
         // Implement custom decoding
         public init(from decoder: Decoder) throws {
@@ -79,6 +82,8 @@ public struct ATUnion {
                 self = .bskyAppStatePreferences(value)
             } else if let value = try? container.decode(AppBskyLexicon.Actor.LabelersPreferencesDefinition.self) {
                 self = .labelersPreferences(value)
+            } else if let value = try? container.decode(AppBskyLexicon.Actor.PostInteractionSettingsPreferenceDefinition.self) {
+                self = .postInteractionSettingsPreference(value)
             } else {
                 throw DecodingError.typeMismatch(
                     ActorPreferenceUnion.self, DecodingError.Context(
@@ -115,6 +120,43 @@ public struct ATUnion {
                     try container.encode(bskyAppStatePreferences)
                 case .labelersPreferences(let labelersPreferences):
                     try container.encode(labelersPreferences)
+                case .postInteractionSettingsPreference(let preference):
+                    try container.encode(preference)
+            }
+        }
+    }
+
+    /// A reference containing the list of post interaction setting preferences.
+    public enum ActorPostInteractionSettingsPreferencesUnion: Sendable, Codable, Equatable, Hashable {
+
+        /// A rule that allows users that were mentioned in the user account's post to reply to
+        /// said post.
+        case mentionRule(AppBskyLexicon.Feed.ThreadgateRecord.MentionRule)
+
+        /// A rule that allows users who follow you to reply to the user account's post.
+        case followerRule(AppBskyLexicon.Feed.ThreadgateRecord.FollowerRule)
+
+        /// A rule that allows users that are followed by the user account to reply to the post.
+        case followingRule(AppBskyLexicon.Feed.ThreadgateRecord.FollowingRule)
+
+        /// A rule that allows users are in a specified list to reply to the post.
+        case listRule(AppBskyLexicon.Feed.ThreadgateRecord.ListRule)
+
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.singleValueContainer()
+
+            if let value = try? container.decode(AppBskyLexicon.Feed.ThreadgateRecord.MentionRule.self) {
+                self = .mentionRule(value)
+            } else if let value = try? container.decode(AppBskyLexicon.Feed.ThreadgateRecord.FollowerRule.self) {
+                self = .followerRule(value)
+            } else if let value = try? container.decode(AppBskyLexicon.Feed.ThreadgateRecord.FollowingRule.self) {
+                self = .followingRule(value)
+            } else if let value = try? container.decode(AppBskyLexicon.Feed.ThreadgateRecord.ListRule.self) {
+                self = .listRule(value)
+            } else {
+                throw DecodingError.typeMismatch(
+                    RecordViewUnion.self, DecodingError.Context(
+                        codingPath: decoder.codingPath, debugDescription: "Unknown ActorPostInteractionSettingsPreferencesUnion type"))
             }
         }
     }
@@ -749,14 +791,17 @@ public struct ATUnion {
     /// A reference containing the list of thread rules for a post.
     public enum ThreadgateUnion: Sendable, Codable, Equatable, Hashable {
 
-        /// A rule that indicates whether users that the post author mentions can reply to the post.
+        /// A rule that allows users that were mentioned in the user account's post to reply to
+        /// said post.
         case mentionRule(AppBskyLexicon.Feed.ThreadgateRecord.MentionRule)
 
-        /// A rule that indicates whether users that the post author is following can reply to the post.
+        /// A rule that allows users who follow you to reply to the user account's post.
+        case followerRule(AppBskyLexicon.Feed.ThreadgateRecord.FollowerRule)
+
+        /// A rule that allows users that are followed by the user account to reply to the post.
         case followingRule(AppBskyLexicon.Feed.ThreadgateRecord.FollowingRule)
 
-        /// A rule that indicates whether users that are on a specific list made by the post author can
-        /// reply to the post.
+        /// A rule that allows users are in a specified list to reply to the post.
         case listRule(AppBskyLexicon.Feed.ThreadgateRecord.ListRule)
 
         public init(from decoder: Decoder) throws {
@@ -764,6 +809,8 @@ public struct ATUnion {
 
             if let value = try? container.decode(AppBskyLexicon.Feed.ThreadgateRecord.MentionRule.self) {
                 self = .mentionRule(value)
+            } else if let value = try? container.decode(AppBskyLexicon.Feed.ThreadgateRecord.FollowerRule.self) {
+                self = .followerRule(value)
             } else if let value = try? container.decode(AppBskyLexicon.Feed.ThreadgateRecord.FollowingRule.self) {
                 self = .followingRule(value)
             } else if let value = try? container.decode(AppBskyLexicon.Feed.ThreadgateRecord.ListRule.self) {
@@ -780,6 +827,8 @@ public struct ATUnion {
 
             switch self {
                 case .mentionRule(let embedView):
+                    try container.encode(embedView)
+                case .followerRule(let embedView):
                     try container.encode(embedView)
                 case .followingRule(let embedView):
                     try container.encode(embedView)
@@ -1090,11 +1139,49 @@ public struct ATUnion {
         }
     }
 
+    /// A reference containing the list of messages.
+    public enum LogReadMessageUnion: Sendable, Codable {
+
+        /// A message view.
+        case messageView(ChatBskyLexicon.Conversation.MessageViewDefinition)
+
+        /// A deleted message view.
+        case deletedMessageView(ChatBskyLexicon.Conversation.DeletedMessageViewDefinition)
+
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.singleValueContainer()
+
+            if let value = try? container.decode(ChatBskyLexicon.Conversation.MessageViewDefinition.self) {
+                self = .messageView(value)
+            } else if let value = try? container.decode(ChatBskyLexicon.Conversation.DeletedMessageViewDefinition.self) {
+                self = .deletedMessageView(value)
+            } else {
+                throw DecodingError.typeMismatch(
+                    LogDeleteMessageUnion.self, DecodingError.Context(
+                        codingPath: decoder.codingPath, debugDescription: "Unknown LogDeleteMessageUnion type"))
+            }
+        }
+
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.singleValueContainer()
+
+            switch self {
+                case .messageView(let messageView):
+                    try container.encode(messageView)
+                case .deletedMessageView(let deletedMessageView):
+                    try container.encode(deletedMessageView)
+            }
+        }
+    }
+
     /// A reference containing the list of message logs.
     public enum MessageLogsUnion: Sendable, Codable {
 
         /// A log entry for beginning the coversation.
         case logBeginConversation(ChatBskyLexicon.Conversation.LogBeginConversationDefinition)
+
+        /// A log entry for accepting a conversation.
+        case logAcceptConversation(ChatBskyLexicon.Conversation.LogAcceptConversationDefinition)
 
         /// A log entry for leaving the conversation.
         case logLeaveConversation(ChatBskyLexicon.Conversation.LogLeaveConversationDefinition)
@@ -1110,6 +1197,8 @@ public struct ATUnion {
 
             if let value = try? container.decode(ChatBskyLexicon.Conversation.LogBeginConversationDefinition.self) {
                 self = .logBeginConversation(value)
+            } else if let value = try? container.decode(ChatBskyLexicon.Conversation.LogAcceptConversationDefinition.self) {
+                self = .logAcceptConversation(value)
             } else if let value = try? container.decode(ChatBskyLexicon.Conversation.LogLeaveConversationDefinition.self) {
                 self = .logLeaveConversation(value)
             } else if let value = try? container.decode(ChatBskyLexicon.Conversation.LogCreateMessageDefinition.self) {
@@ -1129,6 +1218,8 @@ public struct ATUnion {
             switch self {
                 case .logBeginConversation(let logBeginConversation):
                     try container.encode(logBeginConversation)
+                case .logAcceptConversation(let logAcceptConversation):
+                    try container.encode(logAcceptConversation)
                 case .logLeaveConversation(let logLeaveConversation):
                     try container.encode(logLeaveConversation)
                 case .logCreateMessage(let logCreateMessage):
@@ -1418,6 +1509,10 @@ public struct ATUnion {
         /// A tag event.
         case moderationEventTag(ToolsOzoneLexicon.Moderation.EventTagDefinition)
 
+        /// A priority score event.
+        case moderationEventPriorityScore(ToolsOzoneLexicon.Moderation.EventPriorityScoreDefinition)
+
+
         public init(from decoder: Decoder) throws {
             let container = try decoder.singleValueContainer()
 
@@ -1451,6 +1546,8 @@ public struct ATUnion {
                 self = .moderationEventDivert(value)
             } else if let value = try? container.decode(ToolsOzoneLexicon.Moderation.EventTagDefinition.self) {
                 self = .moderationEventTag(value)
+            } else if let value = try? container.decode(ToolsOzoneLexicon.Moderation.EventPriorityScoreDefinition.self) {
+                self = .moderationEventPriorityScore(value)
             } else {
                 throw DecodingError.typeMismatch(
                     ModerationEventViewUnion.self, DecodingError.Context(
@@ -1492,6 +1589,8 @@ public struct ATUnion {
                     try container.encode(moderationEventDivert)
                 case .moderationEventTag(let moderationEventTag):
                     try container.encode(moderationEventTag)
+                case .moderationEventPriorityScore(let event):
+                    try container.encode(event)
             }
         }
     }
@@ -1571,6 +1670,9 @@ public struct ATUnion {
         /// A tag event.
         case moderationEventTag(ToolsOzoneLexicon.Moderation.EventTagDefinition)
 
+        /// A priority score event.
+        case moderationEventPriorityScore(ToolsOzoneLexicon.Moderation.EventPriorityScoreDefinition)
+
         public init(from decoder: Decoder) throws {
             let container = try decoder.singleValueContainer()
 
@@ -1594,6 +1696,8 @@ public struct ATUnion {
                 self = .moderationEventResolveAppeal(value)
             } else if let value = try? container.decode(ToolsOzoneLexicon.Moderation.EventTagDefinition.self) {
                 self = .moderationEventTag(value)
+            } else if let value = try? container.decode(ToolsOzoneLexicon.Moderation.EventPriorityScoreDefinition.self) {
+                self = .moderationEventPriorityScore(value)
             } else {
                 throw DecodingError.typeMismatch(
                     ModerationEventViewDetailUnion.self, DecodingError.Context(
@@ -1625,6 +1729,8 @@ public struct ATUnion {
                     try container.encode(moderationEventResolveAppeal)
                 case .moderationEventTag(let moderationEventTag):
                     try container.encode(moderationEventTag)
+                case .moderationEventPriorityScore(let event):
+                    try container.encode(event)
             }
         }
     }
@@ -1815,6 +1921,9 @@ public struct ATUnion {
         /// An email event.
         case moderationEventEmail(ToolsOzoneLexicon.Moderation.EventEmailDefinition)
 
+        /// A divert event.
+        case moderationEventDivert(ToolsOzoneLexicon.Moderation.EventDivertDefinition)
+
         /// A resolve appeal event.
         case moderationEventResolveAppeal(ToolsOzoneLexicon.Moderation.EventResolveAppealDefinition)
 
@@ -1857,6 +1966,8 @@ public struct ATUnion {
                 self = .moderationEventUnmuteReporter(value)
             } else if let value = try? container.decode(ToolsOzoneLexicon.Moderation.EventEmailDefinition.self) {
                 self = .moderationEventEmail(value)
+            } else if let value = try? container.decode(ToolsOzoneLexicon.Moderation.EventDivertDefinition.self) {
+                self = .moderationEventDivert(value)
             } else if let value = try? container.decode(ToolsOzoneLexicon.Moderation.EventResolveAppealDefinition.self) {
                 self = .moderationEventResolveAppeal(value)
             } else if let value = try? container.decode(ToolsOzoneLexicon.Moderation.EventTagDefinition.self) {
@@ -1902,6 +2013,8 @@ public struct ATUnion {
                     try container.encode(moderationEventUnmuteReporter)
                 case .moderationEventEmail(let moderationEventEmail):
                     try container.encode(moderationEventEmail)
+                case .moderationEventDivert(let moderationEventDivert):
+                    try container.encode(moderationEventDivert)
                 case .moderationEventResolveAppeal(let moderationEventResolveAppeal):
                     try container.encode(moderationEventResolveAppeal)
                 case .moderationEventTag(let value):
