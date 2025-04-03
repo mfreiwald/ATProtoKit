@@ -62,7 +62,7 @@ extension AppBskyLexicon.Feed {
             self.cid = try container.decode(String.self, forKey: .cid)
             self.author = try container.decode(AppBskyLexicon.Actor.ProfileViewBasicDefinition.self, forKey: .author)
             self.record = try container.decode(UnknownType.self, forKey: .record)
-            self.embed = try container.decodeIfPresent(ATUnion.EmbedViewUnion.self, forKey: .embed)
+            self.embed = try? container.decodeIfPresent(ATUnion.EmbedViewUnion.self, forKey: .embed)
             self.replyCount = try container.decodeIfPresent(Int.self, forKey: .replyCount)
             self.repostCount = try container.decodeIfPresent(Int.self, forKey: .repostCount)
             self.likeCount = try container.decodeIfPresent(Int.self, forKey: .likeCount)

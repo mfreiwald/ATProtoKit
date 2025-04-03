@@ -93,7 +93,7 @@ extension AppBskyLexicon.Feed {
             self.text = try container.decode(String.self, forKey: .text)
             self.facets = try container.decodeIfPresent([AppBskyLexicon.RichText.Facet].self, forKey: .facets)
             self.reply = try container.decodeIfPresent(ReplyReference.self, forKey: .reply)
-            self.embed = try container.decodeIfPresent(ATUnion.PostEmbedUnion.self, forKey: .embed)
+            self.embed = try? container.decodeIfPresent(ATUnion.PostEmbedUnion.self, forKey: .embed)
             self.languages = try container.decodeIfPresent([String].self, forKey: .languages)
             self.labels = try container.decodeIfPresent(ATUnion.PostSelfLabelsUnion.self, forKey: .labels)
             self.tags = try container.decodeIfPresent([String].self, forKey: .tags)
