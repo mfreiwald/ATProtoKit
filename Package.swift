@@ -55,7 +55,7 @@ let package = Package(
             dependencies: [
                 "Macros"
             ]
-        )
+        ),
 //        .executableTarget(name: "VersionNumberPluginExec"),
 //        .plugin(
 //            name: "VersionNumberPlugin",
@@ -63,9 +63,9 @@ let package = Package(
 //            dependencies: ["VersionNumberPluginExec"]
 //        )
 
-//        .testTarget(
-//            name: "ATProtoKitTests",
-//            dependencies: ["ATProtoKit"]),
+        .testTarget(
+            name: "ATProtoKitTests",
+            dependencies: ["ATProtoKit"]),
     ]
 )
 
