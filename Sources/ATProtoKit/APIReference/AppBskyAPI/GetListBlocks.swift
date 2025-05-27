@@ -30,14 +30,16 @@ extension ATProtoKit {
     public func getListBlocks(
         limit: Int? = 50,
         cursor: String? = nil
-    ) async throws -> AppBskyLexicon.Graph.GetBlocksOutput {
-        guard session != nil,
-              let accessToken = session?.accessToken else {
+    ) async throws -> AppBskyLexicon.Graph.GetListBlocksOutput {
+        guard let session = try await self.getUserSession(),
+              let keychain = sessionConfiguration?.keychainProtocol else {
             throw ATRequestPrepareError.missingActiveSession
         }
 
-        guard let sessionURL = session?.serviceEndpoint,
-              let requestURL = URL(string: "\(sessionURL)/xrpc/app.bsky.graph.getListBlocks") else {
+        let accessToken = try await keychain.retrieveAccessToken()
+        let sessionURL = session.serviceEndpoint.absoluteString
+
+        guard let requestURL = URL(string: "\(sessionURL)/xrpc/app.bsky.graph.getListBlocks") else {
             throw ATRequestPrepareError.invalidRequestURL
         }
 
@@ -60,7 +62,7 @@ extension ATProtoKit {
                 with: queryItems
             )
 
-            let request = APIClientService.createRequest(
+            let request = await APIClientService.createRequest(
                 forRequest: queryURL,
                 andMethod: .get,
                 acceptValue: "application/json",
@@ -69,7 +71,7 @@ extension ATProtoKit {
             )
             let response = try await APIClientService.shared.sendRequest(
                 request,
-                decodeTo: AppBskyLexicon.Graph.GetBlocksOutput.self
+                decodeTo: AppBskyLexicon.Graph.GetListBlocksOutput.self
             )
 
             return response

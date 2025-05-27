@@ -30,7 +30,7 @@ extension ATProtoKit {
         by did: String,
         sinceRevision: String? = nil
     ) async throws -> Data {
-        guard let requestURL = URL(string: "\(self.pdsURL)/xrpc/com.atproto.sync.getRepo") else {
+        guard let requestURL = URL(string: "https://bsky.network/xrpc/com.atproto.sync.getRepo") else {
             throw ATRequestPrepareError.invalidRequestURL
         }
 
@@ -50,7 +50,7 @@ extension ATProtoKit {
                 with: queryItems
             )
 
-            let request = APIClientService.createRequest(
+            let request = await APIClientService.createRequest(
                 forRequest: queryURL,
                 andMethod: .get,
                 acceptValue: "application/vnd.ipld.car",

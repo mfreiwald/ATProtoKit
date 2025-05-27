@@ -7,7 +7,9 @@
 - ``SkeletonSearchPostDefinition``
 - ``SkeletonSearchActorDefinition``
 - ``SkeletonSearchStarterPackDefinition``
-- ``TrendingTopic``
+- ``TrendingTopicDefinition``
+- ``SkeletonTrendDefinition``
+- ``TrendViewDefinition``
 
 ### app.bsky.unspecced.getConfig
 
@@ -16,6 +18,30 @@
 ### app.bsky.unspecced.getPopularFeedGenerators
 
 - ``GetPopularFeedGeneratorsOutput``
+
+### app.bsky.unspecced.getSuggestedFeeds
+
+- ``GetSuggestedFeedsOutput``
+
+### app.bsky.unspecced.getSuggestedFeedsSkeleton
+
+- ``GetSuggestedFeedsSkeletonOutput``
+
+### app.bsky.unspecced.getSuggestedStarterPacks
+
+- ``GetSuggestedStarterPacksOutput``
+
+### app.bsky.unspecced.getSuggestedStarterPacksSkeleton
+
+- ``GetSuggestedStarterPacksSkeletonOutput``
+
+### app.bsky.unspecced.getSuggestedUsers
+
+- ``GetSuggestedUsersOutput``
+
+### app.bsky.unspecced.getSuggestedUsersSkeleton
+
+- ``GetSuggestedUsersSkeletonOutput``
 
 ### app.bsky.unspecced.getSuggestionsSkeleton
 
@@ -28,6 +54,14 @@
 ### app.bsky.unspecced.getTrendingTopics
 
 - ``GetTrendingTopicsOutput``
+
+### app.bsky.unspecced.getTrends
+
+- ``GetTrendsOutput``
+
+### app.bsky.unspecced.getTrendsSkeleton
+
+- ``GetTrendsSkeletonOutput``
 
 ### app.bsky.unspecced.searchActorsSkeleton
 

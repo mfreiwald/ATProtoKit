@@ -43,6 +43,12 @@ extension AppBskyLexicon.Actor {
         /// The date and time the profile was created. Optional.
         public let createdAt: Date?
 
+        /// The state of verification for the user account. Optional.
+        public let verificationState: VerificationStateDefinition?
+
+        /// The status of the user account. Optional.
+        public let status: StatusViewDefinition?
+
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -54,9 +60,10 @@ extension AppBskyLexicon.Actor {
             self.viewer = try container.decodeIfPresent(AppBskyLexicon.Actor.ViewerStateDefinition.self, forKey: .viewer)
             self.labels = try container.decodeIfPresent([ComAtprotoLexicon.Label.LabelDefinition].self, forKey: .labels)
             self.createdAt = try container.decodeDateIfPresent(forKey: .createdAt)
+            self.verificationState = try container.decodeIfPresent(VerificationStateDefinition.self, forKey: .verificationState)
+            self.status = try container.decodeIfPresent(StatusViewDefinition.self, forKey: .status)
         }
 
-        @_documentation(visibility: private)
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             
@@ -68,6 +75,8 @@ extension AppBskyLexicon.Actor {
             try container.encodeIfPresent(self.viewer, forKey: .viewer)
             try container.encodeIfPresent(self.labels, forKey: .labels)
             try container.encodeDateIfPresent(self.createdAt, forKey: .createdAt)
+            try container.encodeIfPresent(self.verificationState, forKey: .verificationState)
+            try container.encodeIfPresent(self.status, forKey: .status)
         }
 
         enum CodingKeys: String, CodingKey {
@@ -79,6 +88,8 @@ extension AppBskyLexicon.Actor {
             case viewer
             case labels
             case createdAt
+            case verificationState = "verification"
+            case status
         }
     }
 
@@ -124,6 +135,12 @@ extension AppBskyLexicon.Actor {
         /// An array of labels created by the user. Optional.
         public let labels: [ComAtprotoLexicon.Label.LabelDefinition]?
 
+        /// The state of verification for the user account. Optional.
+        public let verificationState: VerificationStateDefinition?
+
+        /// The status of the user account. Optional.
+        public let status: StatusViewDefinition?
+
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -137,9 +154,10 @@ extension AppBskyLexicon.Actor {
             self.createdAt = try container.decodeDateIfPresent(forKey: .createdAt)
             self.viewer = try container.decodeIfPresent(AppBskyLexicon.Actor.ViewerStateDefinition.self, forKey: .viewer)
             self.labels = try container.decodeIfPresent([ComAtprotoLexicon.Label.LabelDefinition].self, forKey: .labels)
+            self.verificationState = try container.decodeIfPresent(VerificationStateDefinition.self, forKey: .verificationState)
+            self.status = try container.decodeIfPresent(StatusViewDefinition.self, forKey: .status)
         }
 
-        @_documentation(visibility: private)
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             
@@ -153,6 +171,8 @@ extension AppBskyLexicon.Actor {
             try container.encodeDateIfPresent(self.createdAt, forKey: .createdAt)
             try container.encodeIfPresent(self.viewer, forKey: .viewer)
             try container.encodeIfPresent(self.labels, forKey: .labels)
+            try container.encodeIfPresent(self.verificationState, forKey: .verificationState)
+            try container.encodeIfPresent(self.status, forKey: .status)
         }
         
         enum CodingKeys: String, CodingKey {
@@ -166,6 +186,8 @@ extension AppBskyLexicon.Actor {
             case createdAt
             case viewer
             case labels
+            case verificationState = "verification"
+            case status
         }
     }
 
@@ -229,11 +251,18 @@ extension AppBskyLexicon.Actor {
         /// A post record that's pinned to the profile. Optional.
         public let pinnedPost: ComAtprotoLexicon.Repository.StrongReference?
 
+        /// The state of verification for the user account. Optional.
+        public let verificationState: VerificationStateDefinition?
+
+        /// The status of the user account. Optional.
+        public let status: StatusViewDefinition?
+
         public init(actorDID: String, actorHandle: String, displayName: String? = nil, description: String? = nil, avatarImageURL: URL? = nil,
                     bannerImageURL: URL? = nil, followerCount: Int? = nil, followCount: Int? = nil, postCount: Int? = nil,
                     associated: ProfileAssociatedDefinition?, joinedViaStarterPack: AppBskyLexicon.Graph.StarterPackViewBasicDefinition?, indexedAt: Date?,
                     createdAt: Date?, viewer: ViewerStateDefinition? = nil, labels: [ComAtprotoLexicon.Label.LabelDefinition]? = nil,
-                    pinnedPost: ComAtprotoLexicon.Repository.StrongReference?) {
+                    pinnedPost: ComAtprotoLexicon.Repository.StrongReference?, verificationState: VerificationStateDefinition? = nil,
+                    status: StatusViewDefinition? = nil) {
             self.actorDID = actorDID
             self.actorHandle = actorHandle
             self.displayName = displayName
@@ -250,6 +279,8 @@ extension AppBskyLexicon.Actor {
             self.viewer = viewer
             self.labels = labels
             self.pinnedPost = pinnedPost
+            self.verificationState = verificationState
+            self.status = status
         }
 
         public init(from decoder: any Decoder) throws {
@@ -271,9 +302,10 @@ extension AppBskyLexicon.Actor {
             self.viewer = try container.decodeIfPresent(AppBskyLexicon.Actor.ViewerStateDefinition.self, forKey: .viewer)
             self.labels = try container.decodeIfPresent([ComAtprotoLexicon.Label.LabelDefinition].self, forKey: .labels)
             self.pinnedPost = try container.decodeIfPresent(ComAtprotoLexicon.Repository.StrongReference.self, forKey: .pinnedPost)
+            self.verificationState = try container.decodeIfPresent(VerificationStateDefinition.self, forKey: .verificationState)
+            self.status = try container.decodeIfPresent(StatusViewDefinition.self, forKey: .status)
         }
 
-        @_documentation(visibility: private)
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             
@@ -293,6 +325,8 @@ extension AppBskyLexicon.Actor {
             try container.encodeIfPresent(self.viewer, forKey: .viewer)
             try container.encodeIfPresent(self.labels, forKey: .labels)
             try container.encodeIfPresent(self.pinnedPost, forKey: .pinnedPost)
+            try container.encodeIfPresent(self.verificationState, forKey: .verificationState)
+            try container.encodeIfPresent(self.status, forKey: .status)
         }
         
         enum CodingKeys: String, CodingKey {
@@ -312,6 +346,8 @@ extension AppBskyLexicon.Actor {
             case viewer
             case labels
             case pinnedPost
+            case verificationState = "verification"
+            case status
         }
     }
 
@@ -452,6 +488,133 @@ extension AppBskyLexicon.Actor {
         }
     }
 
+    /// A definition model for verifying user account information attached to this object.
+    ///
+    /// - Note: According to the AT Protocol specifications: "Represents the verification information about
+    /// the user this object is attached to."
+    ///
+    /// - SeeAlso: This is based on the [`app.bsky.actor.defs`][github] lexicon.
+    ///
+    /// [github]: https://github.com/bluesky-social/atproto/blob/main/lexicons/app/bsky/actor/defs.json
+    public struct VerificationStateDefinition: Sendable, Codable, Equatable, Hashable {
+
+        /// An array of verifications given by trusted verifiers.
+        ///
+        /// Untrusted verifiers are not included.
+        ///
+        /// - Note: According to the AT Protocol specifications: "All verifications issued by trusted
+        /// verifiers on behalf of this user. Verifications by untrusted verifiers are not included."
+        public let verifications: [VerificationViewDefinition]
+
+        /// The status as a verified user account.
+        ///
+        /// - Note: According to the AT Protocol specifications: "he user's status as a verified account."
+        public let verifiedStatus: VerifiedStatus
+
+        /// The status as a trusted verifier user account.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The user's status as a trusted verifier."
+        public let trustedVerifiedStatus: TrustedVerifiedStatus
+
+        enum CodingKeys: String, CodingKey {
+            case verifications
+            case verifiedStatus = "verifiedStatus"
+            case trustedVerifiedStatus = "trustedVerifierStatus"
+        }
+
+        // Enums
+        /// The status as a verified user account.
+        public enum VerifiedStatus: String, Sendable, Codable {
+
+            /// The user account is verified.
+            case valid
+
+            /// The user account has an invalid verification.
+            case invalid
+
+            /// The user account is not verified.
+            case none
+        }
+
+        /// The status as a trusted verifier user account.
+        public enum TrustedVerifiedStatus: String, Sendable, Codable {
+
+            /// The user account is verified.
+            case valid
+
+            /// The user account has an invalid verification.
+            case invalid
+
+            /// The user account is not verified.
+            case none
+        }
+    }
+
+    /// A definition model for a verification.
+    ///
+    /// - Note: According to the AT Protocol specifications: "An individual verification for an
+    /// associated subject."
+    ///
+    /// - SeeAlso: This is based on the [`app.bsky.actor.defs`][github] lexicon.
+    ///
+    /// [github]: https://github.com/bluesky-social/atproto/blob/main/lexicons/app/bsky/actor/defs.json
+    public struct VerificationViewDefinition: Sendable, Codable, Equatable, Hashable {
+
+        /// The user account who verified this.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The user who issued this verification."
+        public let issuerDID: String
+
+        /// The URI of the verification.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The AT-URI of the verification record."
+        public let uri: String
+
+        /// Determines if the verification is valid.
+        ///
+        /// - Note: According to the AT Protocol specifications: "True if the verification passes
+        /// validation, otherwise false."
+        public let isValid: Bool
+
+        /// The date and time the verification was issued.
+        ///
+        /// - Note: According to the AT Protocol specifications: "Timestamp when the verification
+        /// was created."
+        public let createdAt: Date
+
+        public init(issuerDID: String, uri: String, isValid: Bool, createdAt: Date) {
+            self.issuerDID = issuerDID
+            self.uri = uri
+            self.isValid = isValid
+            self.createdAt = createdAt
+        }
+
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+
+            self.issuerDID = try container.decode(String.self, forKey: .issuerDID)
+            self.uri = try container.decode(String.self, forKey: .uri)
+            self.isValid = try container.decode(Bool.self, forKey: .isValid)
+            self.createdAt = try container.decodeDate(forKey: .createdAt)
+        }
+
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+
+            try container.encode(self.issuerDID, forKey: .issuerDID)
+            try container.encode(self.uri, forKey: .uri)
+            try container.encode(self.isValid, forKey: .isValid)
+            try container.encodeDate(self.createdAt, forKey: .createdAt)
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case issuerDID = "issuer"
+            case uri
+            case isValid
+            case createdAt
+        }
+    }
+
     /// A definition model for preferences.
     ///
     /// - SeeAlso: This is based on the [`app.bsky.actor.defs`][github] lexicon.
@@ -475,7 +638,6 @@ extension AppBskyLexicon.Actor {
         /// `false` by default.
         public var isAdultContentEnabled: Bool = false
 
-        @_documentation(visibility: private)
         public init(isAdultContentEnabled: Bool) {
             self.isAdultContentEnabled = isAdultContentEnabled
         }
@@ -512,7 +674,6 @@ extension AppBskyLexicon.Actor {
         /// Indicates the visibility of the label's content.
         public let visibility: Visibility
 
-        @_documentation(visibility: private)
         public init(did: String?, label: String, visibility: Visibility) {
             self.did = did
             self.label = label
@@ -590,7 +751,7 @@ extension AppBskyLexicon.Actor {
         enum CodingKeys: String, CodingKey {
             case type = "$type"
             case feedID = "id"
-            case feedType
+            case feedType = "type"
             case value
             case isPinned = "pinned"
         }
@@ -638,7 +799,6 @@ extension AppBskyLexicon.Actor {
         /// The index number of the timeline for the list of feeds. Optional.
         public var timelineIndex: Int?
 
-        @_documentation(visibility: private)
         public init(pinned: [String], saved: [String], timelineIndex: Int?) {
             self.pinned = pinned
             self.saved = saved
@@ -676,7 +836,6 @@ extension AppBskyLexicon.Actor {
             self.birthDate = try container.decodeDateIfPresent(forKey: .birthDate)
         }
 
-        @_documentation(visibility: private)
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
 
@@ -823,7 +982,6 @@ extension AppBskyLexicon.Actor {
         /// name is 64 characters.
         public let tags: [String]
 
-        @_documentation(visibility: private)
         public init(tags: [String]) {
             self.tags = tags
         }
@@ -834,7 +992,6 @@ extension AppBskyLexicon.Actor {
             self.tags = try container.decode([String].self, forKey: .tags)
         }
 
-        @_documentation(visibility: private)
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
 
@@ -881,7 +1038,6 @@ extension AppBskyLexicon.Actor {
             }
         }
 
-        @_documentation(visibility: private)
         public func encode(to encoder: Encoder) throws {
             var container = encoder.singleValueContainer()
             switch self {
@@ -946,7 +1102,6 @@ extension AppBskyLexicon.Actor {
             self.expiresAt = try container.decodeDateIfPresent(forKey: .expiresAt)
         }
 
-        @_documentation(visibility: private)
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
 
@@ -1031,8 +1186,18 @@ extension AppBskyLexicon.Actor {
     /// [github]: https://github.com/bluesky-social/atproto/blob/main/lexicons/app/bsky/actor/defs.json
     public struct LabelersPreferencesDefinition: Sendable, Codable {
 
+        /// The identifier of the lexicon.
+        ///
+        /// - Warning: The value must not change.
+        public let type: String = "app.bsky.actor.defs#labelersPref"
+
         /// An array of labeler items.
         public let labelers: [LabelersPreferenceItem]
+
+        enum CodingKeys: String, CodingKey {
+            case type = "$type"
+            case labelers
+        }
     }
 
     /// A definition model for a labeler item.
@@ -1062,6 +1227,11 @@ extension AppBskyLexicon.Actor {
     /// [github]: https://github.com/bluesky-social/atproto/blob/main/lexicons/app/bsky/actor/defs.json
     public struct BskyAppStatePreferencesDefinition: Sendable, Codable {
 
+        /// The identifier of the lexicon.
+        ///
+        /// - Warning: The value must not change.
+        public let type: String = "app.bsky.actor.defs#bskyAppStatePref"
+
         /// An active progress guide. Optional.
         public let activeProgressGuide: String?
 
@@ -1083,6 +1253,13 @@ extension AppBskyLexicon.Actor {
             try container.encodeIfPresent(self.activeProgressGuide, forKey: .activeProgressGuide)
             try container.truncatedEncodeIfPresent(self.queuedNudges, forKey: .queuedNudges, upToCharacterLength: 100, upToArrayLength: 1_000)
             try container.truncatedEncodeIfPresent(self.nuxs, forKey: .nuxs, upToArrayLength: 100)
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case type = "$type"
+            case activeProgressGuide
+            case queuedNudges
+            case nuxs
         }
     }
 
@@ -1164,6 +1341,35 @@ extension AppBskyLexicon.Actor {
         }
     }
 
+    /// A definition model for settings used in terms of how user accounts that are verified or are trusted
+    /// verifiers appear.
+    ///
+    /// - Note: According to the AT Protocol specifications: "Preferences for how verified accounts appear
+    /// in the app."
+    ///
+    /// - SeeAlso: This is based on the [`app.bsky.actor.defs`][github] lexicon.
+    ///
+    /// [github]: https://github.com/bluesky-social/atproto/blob/main/lexicons/app/bsky/actor/defs.json
+    public struct VerificationPreferenceDefinition: Sendable, Codable {
+
+        /// The identifier of the lexicon.
+        ///
+        /// - Warning: The value must not change.
+        public let type: String = "app.bsky.actor.defs#verificationPrefs"
+
+        /// Determines whether the blue badges for both verified and trusted verifier user accounts
+        /// are hidden. Defaults to `false`.
+        ///
+        /// - Note: According to the AT Protocol specifications: "Hide the blue check badges for verified
+        /// accounts and trusted verifiers."
+        public let willHideBadges: Bool = false
+
+        enum CodingKeys: String, CodingKey {
+            case type = "$type"
+            case willHideBadges = "hideBadges"
+        }
+    }
+
     /// A definition model for default post interaction settings that mirror threadgate and
     /// postgate records when creating new posts.
     ///
@@ -1176,31 +1382,220 @@ extension AppBskyLexicon.Actor {
     /// [github]: https://github.com/bluesky-social/atproto/blob/main/lexicons/app/bsky/actor/defs.json
     public struct PostInteractionSettingsPreferenceDefinition: Sendable, Codable {
 
+        /// The identifier of the lexicon.
+        ///
+        /// - Warning: The value must not change.
+        public let type: String = "app.bsky.actor.defs#postInteractionSettingsPref"
+
         /// An array of rules that determines who can reply to the user account's posts.
         ///
         /// An empty array prevents any replies. An undefined array allows anyone to reply.
         ///
-        /// - Note: According to the AT Protocol specifications: "Matches threadgate record. List of rules defining who can reply to this users posts. If value is an empty array, no one can reply. If value is undefined, anyone can reply."
+        /// - Note: According to the AT Protocol specifications: "Matches threadgate record. List of rules
+        /// defining who can reply to this users posts. If value is an empty array, no one can reply. If
+        /// value is undefined, anyone can reply."
         public let threadgateAllowRules: [ATUnion.ActorPostInteractionSettingsPreferencesUnion]
 
-        public init(threadgateAllowRules: [ATUnion.ActorPostInteractionSettingsPreferencesUnion]) {
+        /// An array of rules that determines the default settings for determining who can embed the post.
+        ///
+        /// - Note: According to the AT Protocol specifications: "Matches postgate record. List of rules
+        /// defining who can embed this users posts. If value is an empty array or is undefined, no
+        /// particular rules apply and anyone can embed."
+        public let postgateEmbeddingRules: [String]
+
+        public init(threadgateAllowRules: [ATUnion.ActorPostInteractionSettingsPreferencesUnion], postgateEmbeddingRules: [String]) {
             self.threadgateAllowRules = threadgateAllowRules
+            self.postgateEmbeddingRules = postgateEmbeddingRules
         }
 
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
 
             self.threadgateAllowRules = try container.decode([ATUnion.ActorPostInteractionSettingsPreferencesUnion].self, forKey: .threadgateAllowRules)
+            self.postgateEmbeddingRules = try container.decode([String].self, forKey: .postgateEmbeddingRules)
         }
 
         public func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
 
             try container.truncatedEncode(self.threadgateAllowRules, forKey: .threadgateAllowRules, upToArrayLength: 5)
+            try container.truncatedEncode(self.postgateEmbeddingRules, forKey: .postgateEmbeddingRules, upToArrayLength: 5)
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case type = "$type"
+            case threadgateAllowRules
+            case postgateEmbeddingRules
+        }
+
+        // Unions
+        /// A reference containing rules for embedding posts.
+        public enum PostgateEmbeddingRulesUnion: Sendable, Codable {
+
+            /// A rule saying that embedding posts is not allowed at all.
+            case disabledRule(AppBskyLexicon.Feed.PostgateRecord.DisableRule)
+
+            public init(from decoder: any Decoder) throws {
+                let container = try decoder.singleValueContainer()
+
+                if let value = try? container.decode(AppBskyLexicon.Feed.PostgateRecord.DisableRule.self) {
+                    self = .disabledRule(value)
+                } else {
+                    throw DecodingError.typeMismatch(
+                        PostgateEmbeddingRulesUnion.self, DecodingError.Context(
+                            codingPath: decoder.codingPath, debugDescription: "Unknown PostgateEmbeddingRulesUnion type"))
+                }
+            }
+
+            public func encode(to encoder: any Encoder) throws {
+                var container = encoder.singleValueContainer()
+
+                switch self {
+                    case .disabledRule(let value):
+                        try container.encode(value)
+                }
+            }
+        }
+    }
+
+    /// A definition model for a status view.
+    ///
+    /// - SeeAlso: This is based on the [`app.bsky.actor.defs`][github] lexicon.
+    ///
+    /// [github]: https://github.com/bluesky-social/atproto/blob/main/lexicons/app/bsky/actor/defs.json
+    public struct StatusViewDefinition: Sendable, Codable, Equatable, Hashable {
+
+        /// The user account's status.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The status for the account."
+        public let status: StatusViewDefinition.Status
+
+        /// The record related to the status.
+        public let record: UnknownType
+
+        /// The embedded content related to the status. Optional.
+        ///
+        /// - Note: According to the AT Protocol specifications: "An optional embed associated with
+        /// the status."
+        public let embed: EmbedUnion?
+
+        /// The date and time of the expiration of the status. Optional.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The date when this status will expire.
+        /// The application might choose to no longer return the status after expiration"
+        public let expiresAt: Date?
+
+        /// Determines whether the status is active. Optional.
+        ///
+        /// - Note: According to the AT Protocol specifications: "True if the status is not expired, false
+        /// if it is expired. Only present if expiration was set."
+        public let isActive: Bool?
+
+        public init(status: StatusViewDefinition.Status, record: UnknownType, embed: EmbedUnion?, expiresAt: Date?, isActive: Bool?) {
+            self.status = status
+            self.record = record
+            self.embed = embed
+            self.expiresAt = expiresAt
+            self.isActive = isActive
+        }
+
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+
+            self.status = try container.decode(StatusViewDefinition.Status.self, forKey: .status)
+            self.record = try container.decode(UnknownType.self, forKey: .record)
+            self.embed = try container.decodeIfPresent(EmbedUnion.self, forKey: .embed)
+            self.expiresAt = try container.decodeDateIfPresent(forKey: .expiresAt)
+            self.isActive = try container.decodeIfPresent(Bool.self, forKey: .isActive)
+        }
+
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+
+            try container.encode(self.status, forKey: .status)
+            try container.encode(self.record, forKey: .record)
+            try container.encodeIfPresent(self.embed, forKey: .embed)
+            try container.encodeDateIfPresent(self.expiresAt, forKey: .expiresAt)
+            try container.encodeIfPresent(self.isActive, forKey: .isActive)
         }
 
         enum CodingKeys: CodingKey {
-            case threadgateAllowRules
+            case status
+            case record
+            case embed
+            case expiresAt
+            case isActive
+        }
+
+        // Enums
+        /// The status of the user account.
+        public enum Status: Sendable, Codable, Equatable, Hashable, ExpressibleByStringLiteral {
+
+            /// The status of the user account is "live."
+            ///
+            /// - Note: According to the AT Protocol specifications: "Advertises an account as currently
+            /// offering live content."
+            case live
+
+            /// An unknown value that the object may contain.
+            case unknown(String)
+
+            /// Provides the raw string value for encoding, decoding, and comparison.
+            public var rawValue: String {
+                switch self {
+                    case .live: return "app.bsky.actor.status#live"
+                    case .unknown(let value): return value
+                }
+            }
+
+            public init(stringLiteral value: String) {
+                self = .unknown(value)
+            }
+
+            public init(from decoder: Decoder) throws {
+                let container = try decoder.singleValueContainer()
+                let value = try container.decode(String.self)
+                switch value {
+                    case "app.bsky.actor.status#live":
+                        self = .live
+                    default:
+                        self = .unknown(value)
+                }
+            }
+
+            public func encode(to encoder: Encoder) throws {
+                var container = encoder.singleValueContainer()
+                try container.encode(self.rawValue)
+            }
+        }
+
+        // Unions
+        /// A reference containing the list of embeds..
+        public enum EmbedUnion: Sendable, Codable, Equatable, Hashable {
+
+            /// An external embed view.
+            case externalView(AppBskyLexicon.Embed.ExternalDefinition.View)
+
+            public init(from decoder: any Decoder) throws {
+                let container = try decoder.singleValueContainer()
+
+                if let value = try? container.decode(AppBskyLexicon.Embed.ExternalDefinition.View.self) {
+                    self = .externalView(value)
+                } else {
+                throw DecodingError.typeMismatch(
+                    EmbedUnion.self, DecodingError.Context(
+                        codingPath: decoder.codingPath, debugDescription: "Unknown EmbedUnion type"))
+                }
+            }
+
+            public func encode(to encoder: any Encoder) throws {
+                var container = encoder.singleValueContainer()
+
+                switch self {
+                    case .externalView(let value):
+                        try container.encode(value)
+                }
+            }
         }
     }
 }
