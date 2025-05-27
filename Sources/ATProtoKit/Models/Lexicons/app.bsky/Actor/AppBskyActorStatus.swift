@@ -52,7 +52,7 @@ extension AppBskyLexicon.Actor {
             let container = try decoder.container(keyedBy: CodingKeys.self)
 
             self.status = try container.decode(AppBskyLexicon.Actor.StatusRecord.Status.self, forKey: .status)
-            self.embed = try container.decodeIfPresent(EmbedUnion.self, forKey: .embed)
+            self.embed = try? container.decodeIfPresent(EmbedUnion.self, forKey: .embed)
             self.durationMinutes = try container.decodeIfPresent(Int.self, forKey: .durationMinutes)
             self.createdAt = try container.decodeDate(forKey: .createdAt)
         }
