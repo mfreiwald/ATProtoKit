@@ -419,10 +419,10 @@ guard session != nil,
     ```swift
     let queryURL: URL
     ```
-    - Inside the `do` block, set the value of `queryURL` to `APIClientService.setQueryItems()`, inserting `requestURL` and `queryItems` respectively. Each parameter, and the closing paranthesis, must have a separate line.
+    - Inside the `do` block, set the value of `queryURL` to `apiClientService.setQueryItems()`, inserting `requestURL` and `queryItems` respectively. Each parameter, and the closing paranthesis, must have a separate line.
     ```swift
     do {
-    queryURL = try APIClientService.setQueryItems(
+    queryURL = try apiClientService.setQueryItems(
                 for: requestURL,
                 with: queryItems
     )
@@ -436,7 +436,7 @@ _TBD..._
     - If `createRequest()` and `sendRequest()` are the only ones in the `do-catch` block, separate them with a space; `createRequest()` must be the first line in the `do` block, followed by a space. `sendRequest()` must be at the last line of the `do` block.
     ```swift
     do {
-        let request = APIClientService.createRequest(forRequest: queryURL,
+        let request = apiClientService.createRequest(forRequest: queryURL,
                                                          andMethod: .post,
                                                          acceptValue: "application/json",
                                                          contentTypeValue: nil,
