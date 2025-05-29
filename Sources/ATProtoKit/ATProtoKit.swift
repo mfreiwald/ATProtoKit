@@ -147,6 +147,8 @@ public final class ATProtoKit: Sendable, ATProtoKitConfiguration, ATRecordConfig
 
     /// The URL of the Personal Data Server (PDS).
     public let pdsURL: String
+    
+    let apiClientService: APIClientService
 
     /// Initializes a new instance of `ATProtoKit`.
     /// 
@@ -193,8 +195,8 @@ public final class ATProtoKit: Sendable, ATProtoKitConfiguration, ATRecordConfig
 
         let recordLexicons = self.recordLexicons
 
+        self.apiClientService = APIClientService(with: finalConfiguration, responseProvider: responseProvider)
         Task(priority: .background) {
-            await APIClientService.shared.configure(with: finalConfiguration, responseProvider: responseProvider)
             if canUseBlueskyRecords && !ATRecordTypeRegistry.areBlueskyRecordsRegistered {
                 _ = await ATRecordTypeRegistry.shared.register(blueskyLexiconTypes: recordLexicons)
             }
@@ -238,7 +240,7 @@ public final class ATProtoKit: Sendable, ATProtoKitConfiguration, ATRecordConfig
 
         self.pdsURL = pdsURL
 
-        await APIClientService.shared.configure(with: self.urlSessionConfiguration, responseProvider: responseProvider)
+        apiClientService = APIClientService(with: self.urlSessionConfiguration, responseProvider: responseProvider)
 
         if canUseBlueskyRecords && !(ATRecordTypeRegistry.areBlueskyRecordsRegistered) {
             _ = await ATRecordTypeRegistry.shared.register(blueskyLexiconTypes: recordLexicons)
@@ -303,6 +305,10 @@ public final class ATProtoBlueskyChat: Sendable, ATProtoKitConfiguration {
 
     /// Represents the instance of ``ATProtoKit/ATProtoKit``.
     internal let atProtoKitInstance: ATProtoKit
+    
+    var apiClientService: APIClientService {
+        atProtoKitInstance.apiClientService
+    }
 
     /// Initializes a new instance of `ATProtoBlueskyChat`.
     ///
@@ -376,6 +382,8 @@ public final class ATProtoAdmin: Sendable, ATProtoKitConfiguration {
 
     /// The URL of the Personal Data Server (PDS).
     public let pdsURL: String
+    
+    let apiClientService: APIClientService
 
     /// Initializes a new instance of `ATProtoAdmin`.
     ///
@@ -389,6 +397,6 @@ public final class ATProtoAdmin: Sendable, ATProtoKitConfiguration {
         self.urlSessionConfiguration = sessionConfiguration?.configuration ?? urlSessionConfiguration ?? .default
         self.pdsURL = "https://api.bsky.app"
 
-        await APIClientService.shared.configure(with: self.urlSessionConfiguration)
+        self.apiClientService = APIClientService(with: self.urlSessionConfiguration)
     }
 }
